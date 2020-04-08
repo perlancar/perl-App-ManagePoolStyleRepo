@@ -1,0 +1,41 @@
+0.007   2020-03-03  Released-By: Steven Haryanto; Urgency: medium
+
+	- [bugfix] Handle unscheduled releases when checking for duplicate
+	  dates.
+
+
+0.006   2020-02-23  Released-By: Steven Haryanto; Urgency: medium
+
+	- [bugfix] Used wrong variable.
+
+
+0.005   2020-02-23  Released-By: Steven Haryanto; Urgency: medium
+
+	- check: Check duplicate date (YYYY-MM-DD and YYYY-MM-DDsu both
+	  exist.
+
+
+0.004   2020-02-18  Released-By: Steven Haryanto; Urgency: medium
+
+	- Add subcommand: check (currently only checks for duplicate
+	  release and decreasing version, more checks planned in the
+	  future).
+
+	[releases]
+
+        - Include 'size' column.
+
+
+0.003   2019-12-30  Released-By: Steven Haryanto; Urgency: medium
+
+	- Add subcommand: dist.
+
+
+0.002   2019-12-24  Released-By: Steven Haryanto; Urgency: medium
+
+	- [subcommand=find-earliest-unscheduled-date] Add --today option.
+
+
+0.001   2019-12-22  Released-By: Steven Haryanto
+
+        - First release.

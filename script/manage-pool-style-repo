@@ -1,0 +1,170 @@
+#!perl
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+use Log::ger; BEGIN { $ENV{LOG_LEVEL} //= 'info' }
+
+use Perinci::CmdLine::Classic;
+
+my $prefix = '/App/ManagePoolStyleRepo/';
+my $cli = Perinci::CmdLine::Classic->new(
+    url => $prefix,
+    log => 1,
+    subcommands => {
+        'update-indexes' => {url=>"${prefix}update_indexes"},
+        'list-items'     => {url=>"${prefix}list_items"},
+    },
+);
+$cli->run;
+
+# ABSTRACT: Manage my pending perl releases
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Pool-style repo can be used to store collections, e.g. movies, songs, books,
+programs. To create a pool-style repo, first create a directory, e.g. C<movies>
+along with C<movies/pool>:
+
+ % mkdir movies
+ % mkdir movies/pool
+
+Put some items (movies) inside the pool (each item as a directory or a file; but
+mostly you want to use directory to be able to put tags inside), e.g.:
+
+ movies/pool/a wednesday (2008)/
+ movies/pool/a wednesday (2008)/movie.mp4
+ movies/pool/a wednesday (2008)/.tag-country-in
+ movies/pool/a wednesday (2008)/.tag-genre-crime
+ movies/pool/a wednesday (2008)/.tag-genre-drama
+
+ movies/pool/andhadhun (2018)/
+ movies/pool/andhadhun (2018)/movie.mp4
+ movies/pool/andhadhun (2018)/movie.srt
+ movies/pool/andhadhun (2018)/.tag-country-in
+ movies/pool/andhadhun (2018)/.tag-genre-crime
+ movies/pool/andhadhun (2018)/.tag-genre-thriller
+
+ movies/pool/the raid - redemption (2011)/
+ movies/pool/the raid - redemption (2011)/the-raid.mkv
+ movies/pool/the raid - redemption (2011)/.tag-country-id
+ movies/pool/the raid - redemption (2011)/.tag-genre-action
+ movies/pool/the raid - redemption (2011)/.tag-genre-thriller
+
+ movies/pool/the swimmer (1968)/
+ movies/pool/the swimmer (1968)/swimmer.avi
+ movies/pool/the swimmer (1968)/.tag-country-us
+ movies/pool/the swimmer (1968)/.tag-genre-drama
+
+ movies/pool/to_live_1994.mp4
+
+ movies/pool/TS/toy-story.mp4
+ movies/pool/TS/.tag-country-us
+ movies/pool/TS/.tag-genre-animated
+ movies/pool/TS/.tag-genre-fantasy
+ movies/pool/TS/.title                 # containing "toy story (1995)"
+
+ movies/pool/TS2/toy-story2.mp4
+ movies/pool/TS2/.tag-country-us
+ movies/pool/TS2/.tag-genre-animated
+ movies/pool/TS2/.tag-genre-fantasy
+ movies/pool/TS2/.title                 # containing "toy story 2 (1999)"
+
+If you want to put items using an intermediate level of subdirectories, you can
+use C<pool1/> instead:
+
+ movies/pool1/a/a wednesday (2008)/...
+ movies/pool1/a/andhadhun (2018)/...
+ movies/pool1/t/the raid - redemption (2011)/
+ movies/pool1/t/the swimmer (1968)/
+ movies/pool1/t/to_live_1994.mp4
+ movies/pool1/t/TS/
+ movies/pool1/t/TS2/
+
+(the intermediate directories can be anything.)
+
+If you want two levels of intermediate directories, use C<pool2>:
+
+ movies/pool2/a/aw/a wednesday (2008)/...
+ movies/pool2/a/an/andhadhun (2018)/...
+ movies/pool2/t/th/the raid - redemption (2011)/
+ movies/pool2/t/th/the swimmer (1968)/
+ movies/pool2/t/to/to_live_1994.mp4
+ movies/pool2/t/ts/TS/
+ movies/pool2/t/ts/TS2/
+
+To create indexes:
+
+ % manage-pool-style-repo create-indexes movies
+
+This will create this directory structure of symlinks:
+
+ movies/indexes/
+ movies/indexes/by-tag/
+
+ movies/indexes/by-tag/country/
+ movies/indexes/by-tag/country/id/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
+ movies/indexes/by-tag/country/in/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
+ movies/indexes/by-tag/country/in/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
+ movies/indexes/by-tag/country/us/the swimmer (1968) -> ../../../../pool/the swimmer (1968)
+ movies/indexes/by-tag/country/us/toy story (1995) -> ../../../../pool/TS
+ movies/indexes/by-tag/country/us/toy story 2 (1999) -> ../../../../pool/TS2
+
+ movies/indexes/by-tag/genre/
+ movies/indexes/by-tag/genre/action/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
+ movies/indexes/by-tag/genre/animated/toy story (1995) -> ../../../../pool/TS
+ movies/indexes/by-tag/genre/animated/toy story 2 (1999) -> ../../../../pool/TS2
+ movies/indexes/by-tag/genre/crime/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
+ movies/indexes/by-tag/genre/crime/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
+ movies/indexes/by-tag/genre/drama/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
+ movies/indexes/by-tag/genre/drama/the swimmer (1968) -> ../../../../pool/the swimmer (1968)
+ movies/indexes/by-tag/genre/fantasy/toy story (1995) -> ../../../../pool/TS
+ movies/indexes/by-tag/genre/fantasy/toy story 2 (1999) -> ../../../../pool/TS2
+ movies/indexes/by-tag/genre/thriller/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
+ movies/indexes/by-tag/genre/thriller/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
+
+ movies/indexes/by-title/
+ movies/indexes/by-title/the raid - redemption (2011) -> ../../pool/the raid - redemption (2011)
+ movies/indexes/by-title/a wednesday (2008) -> ../../pool/a wednesday (2008)
+ movies/indexes/by-title/andhadhun (2018) -> ../../pool/andhadhun (2018)
+ movies/indexes/by-title/the swimmer (1968) -> ../../pool/the swimmer (1968)
+ movies/indexes/by-title/toy story (1995) -> ../../pool/TS
+ movies/indexes/by-title/toy story 2 (1999) -> ../../pool/TS2
+ movies/indexes/by-title/to_live_1994.mp4 -> ../../pool/to_live_1994.mp4
+
+
+=head1 DESCRIPTION
+
+=head2 Pool-style repo
+
+A "pool-style repo" is a term I coined to refer to a directory structure that
+contains a collection of items (media files like movies, songs, or books;
+software, and so on). The items are put in C<pool/> top-level subdirectory. Each
+item can be a file or a directory, although to have the benefit of giving tags,
+you'll need to use a directory.
+
+If you use C<pool1/> instead of C<pool>, then the items are expected to be put
+under a layer of intermediate directory like shown in the example in
+L</SYNOPSIS>. And if you use C<pool2/>, the items are expected to be put under
+two layers of intermediate directories, also shown in the example. You can use
+one or all of C<pool>, C<pool1>, C<pool2> to put your items.
+
+This script can then be used to create C<indexes> directory structure which
+contains symbolic links to the items. There are C<indexes/by-tag>,
+C<indexes/by-title>. These directory structure can be navigated by any
+filesystem tool of your choice.
+
+This files organization is inspired from how Debian repository works.
+
+
+=head1 SUBCOMMANDS
+
+=head2 update-indexes
+
+=head2 list-items
