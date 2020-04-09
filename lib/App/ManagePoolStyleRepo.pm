@@ -93,12 +93,27 @@ $SPEC{list_items} = {
             schema => ['array*', of=>'str*'],
             tags => ['category:filtering'],
         },
+        q => {
+            summary => 'Search query',
+            schema => 'str*',
+            pos => 1,
+            tags => ['category:filtering'],
+        },
+
+        _searchable_fields => {
+            schema => ['array*', of=>'str*'],
+            default => ['filename', 'title'],
+            tags => ['hidden'],
+        },
     },
     features => {
     },
 };
 sub list_items {
     my %args = @_;
+
+    my $q_lc; $q_lc = lc $args{q} if defined $args{q};
+    my $searchable_fields = $args{_searchable_fields} // ['filename', 'title'];
 
     local $CWD = $args{repo_path};
 
@@ -110,11 +125,7 @@ sub list_items {
         local $CWD = "pool";
         for my $item_path (glob "*") {
             my $row;
-            if ($args{detail}) {
-                $row = get_item_metadata(item_path=>$item_path, _skip_cd=>1);
-            } else {
-                $row = $item_path;
-            }
+            $row = get_item_metadata(item_path=>$item_path, _skip_cd=>1);
             push @rows, $row;
         }
     }
@@ -127,12 +138,8 @@ sub list_items {
             local $CWD = $dir1;
             for my $item_path (glob "*") {
                 my $row;
-                if ($args{detail}) {
-                    $row = get_item_metadata(item_path=>$item_path, _skip_cd=>1);
-                    $row->{dir} = $dir1;
-                } else {
-                    $row = $item_path;
-                }
+                $row = get_item_metadata(item_path=>$item_path, _skip_cd=>1);
+                $row->{dir} = $dir1;
                 push @rows, $row;
             }
         }
@@ -148,12 +155,8 @@ sub list_items {
                 local $CWD = $dir2;
                 for my $item_path (glob "*") {
                     my $row;
-                    if ($args{detail}) {
-                        $row = get_item_metadata(item_path=>$item_path, _skip_cd=>1);
-                        $row->{dir} = "$dir1/$dir2";
-                    } else {
-                        $row = $item_path;
-                    }
+                    $row = get_item_metadata(item_path=>$item_path, _skip_cd=>1);
+                    $row->{dir} = "$dir1/$dir2";
                     push @rows, $row;
                 }
             }
@@ -162,10 +165,38 @@ sub list_items {
 
   FILTER: {
         my @frows;
+      ROW:
         for my $row (@rows) {
+            if ($args{has_tags}) {
+                my $matches;
+                for my $tag (@{ $args{has_tags} }) {
+                    do { $matches++; last } if $row->{tags} &&
+                        grep { $tag eq $_ } @{ $row->{tags} };
+                }
+                next ROW unless $matches;
+            }
+            if ($args{lacks_tags}) {
+                my $matches = 1;
+                for my $tag (@{ $args{lacks_tags} }) {
+                    do { $matches = 0; last } if $row->{tags} &&
+                        grep { $tag eq $_ } @{ $row->{tags} };
+                }
+                next ROW unless $matches;
+            }
+            if (defined $q_lc) {
+                my $matches;
+                for my $field (@$searchable_fields) {
+                    do { $matches++; last } if defined $row->{$field} && index(lc($row->{$field}), $q_lc) >= 0;
+                }
+                next ROW unless $matches;
+            }
             push @frows, $row;
         }
         @rows = @frows;
+    }
+
+    unless ($args{detail}) {
+        @rows = map { $_->{title} } @rows;
     }
 
     [200, "OK", \@rows];
