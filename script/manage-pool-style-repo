@@ -17,8 +17,8 @@ my $cli = Perinci::CmdLine::Classic->new(
     url => $prefix,
     log => 1,
     subcommands => {
-        'update-indexes' => {url=>"${prefix}update_indexes"},
-        'list-items'     => {url=>"${prefix}list_items"},
+        'update-index'  => {url=>"${prefix}update_index"},
+        'list-items'    => {url=>"${prefix}list_items"},
     },
 );
 $cli->run;
@@ -99,44 +99,44 @@ If you want two levels of intermediate directories, use C<pool2>:
  movies/pool2/t/ts/TS/
  movies/pool2/t/ts/TS2/
 
-To create indexes:
+To create index:
 
- % manage-pool-style-repo create-indexes movies
+ % manage-pool-style-repo update-index movies
 
 This will create this directory structure of symlinks:
 
- movies/indexes/
- movies/indexes/by-tag/
+ movies/index/
+ movies/index/by-tag/
 
- movies/indexes/by-tag/country/
- movies/indexes/by-tag/country/id/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
- movies/indexes/by-tag/country/in/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
- movies/indexes/by-tag/country/in/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
- movies/indexes/by-tag/country/us/the swimmer (1968) -> ../../../../pool/the swimmer (1968)
- movies/indexes/by-tag/country/us/toy story (1995) -> ../../../../pool/TS
- movies/indexes/by-tag/country/us/toy story 2 (1999) -> ../../../../pool/TS2
+ movies/index/by-tag/country/
+ movies/index/by-tag/country/id/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
+ movies/index/by-tag/country/in/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
+ movies/index/by-tag/country/in/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
+ movies/index/by-tag/country/us/the swimmer (1968) -> ../../../../pool/the swimmer (1968)
+ movies/index/by-tag/country/us/toy story (1995) -> ../../../../pool/TS
+ movies/index/by-tag/country/us/toy story 2 (1999) -> ../../../../pool/TS2
 
- movies/indexes/by-tag/genre/
- movies/indexes/by-tag/genre/action/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
- movies/indexes/by-tag/genre/animated/toy story (1995) -> ../../../../pool/TS
- movies/indexes/by-tag/genre/animated/toy story 2 (1999) -> ../../../../pool/TS2
- movies/indexes/by-tag/genre/crime/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
- movies/indexes/by-tag/genre/crime/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
- movies/indexes/by-tag/genre/drama/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
- movies/indexes/by-tag/genre/drama/the swimmer (1968) -> ../../../../pool/the swimmer (1968)
- movies/indexes/by-tag/genre/fantasy/toy story (1995) -> ../../../../pool/TS
- movies/indexes/by-tag/genre/fantasy/toy story 2 (1999) -> ../../../../pool/TS2
- movies/indexes/by-tag/genre/thriller/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
- movies/indexes/by-tag/genre/thriller/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
+ movies/index/by-tag/genre/
+ movies/index/by-tag/genre/action/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
+ movies/index/by-tag/genre/animated/toy story (1995) -> ../../../../pool/TS
+ movies/index/by-tag/genre/animated/toy story 2 (1999) -> ../../../../pool/TS2
+ movies/index/by-tag/genre/crime/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
+ movies/index/by-tag/genre/crime/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
+ movies/index/by-tag/genre/drama/a wednesday (2008) -> ../../../../pool/a wednesday (2008)
+ movies/index/by-tag/genre/drama/the swimmer (1968) -> ../../../../pool/the swimmer (1968)
+ movies/index/by-tag/genre/fantasy/toy story (1995) -> ../../../../pool/TS
+ movies/index/by-tag/genre/fantasy/toy story 2 (1999) -> ../../../../pool/TS2
+ movies/index/by-tag/genre/thriller/the raid - redemption (2011) -> ../../../../pool/the raid - redemption (2011)
+ movies/index/by-tag/genre/thriller/andhadhun (2018) -> ../../../../pool/andhadhun (2018)
 
- movies/indexes/by-title/
- movies/indexes/by-title/the raid - redemption (2011) -> ../../pool/the raid - redemption (2011)
- movies/indexes/by-title/a wednesday (2008) -> ../../pool/a wednesday (2008)
- movies/indexes/by-title/andhadhun (2018) -> ../../pool/andhadhun (2018)
- movies/indexes/by-title/the swimmer (1968) -> ../../pool/the swimmer (1968)
- movies/indexes/by-title/toy story (1995) -> ../../pool/TS
- movies/indexes/by-title/toy story 2 (1999) -> ../../pool/TS2
- movies/indexes/by-title/to_live_1994.mp4 -> ../../pool/to_live_1994.mp4
+ movies/index/by-title/
+ movies/index/by-title/the raid - redemption (2011) -> ../../pool/the raid - redemption (2011)
+ movies/index/by-title/a wednesday (2008) -> ../../pool/a wednesday (2008)
+ movies/index/by-title/andhadhun (2018) -> ../../pool/andhadhun (2018)
+ movies/index/by-title/the swimmer (1968) -> ../../pool/the swimmer (1968)
+ movies/index/by-title/toy story (1995) -> ../../pool/TS
+ movies/index/by-title/toy story 2 (1999) -> ../../pool/TS2
+ movies/index/by-title/to_live_1994.mp4 -> ../../pool/to_live_1994.mp4
 
 
 =head1 DESCRIPTION
@@ -155,16 +155,16 @@ L</SYNOPSIS>. And if you use C<pool2/>, the items are expected to be put under
 two layers of intermediate directories, also shown in the example. You can use
 one or all of C<pool>, C<pool1>, C<pool2> to put your items.
 
-This script can then be used to create C<indexes> directory structure which
-contains symbolic links to the items. There are C<indexes/by-tag>,
-C<indexes/by-title>. These directory structure can be navigated by any
-filesystem tool of your choice.
+This script can then be used to create C<index> directory structure which
+contains symbolic links to the items. There are C<index/by-tag>,
+C<index/by-title>. These directory structure can be navigated by any filesystem
+tool of your choice.
 
 This files organization is inspired from how Debian repository works.
 
 
 =head1 SUBCOMMANDS
 
-=head2 update-indexes
+=head2 update-index
 
 =head2 list-items

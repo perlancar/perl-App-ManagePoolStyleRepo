@@ -202,5 +202,20 @@ sub list_items {
     [200, "OK", \@rows];
 }
 
+$SPEC{update_index} = {
+    v => 1.1,
+    args => {
+        %args_common,
+    },
+    features => {
+        dry_run => 1,
+    },
+};
+sub update_index {
+    require File::Path;
+
+    my %args = @_;
+}
+
 1;
 # ABSTRACT: Manage pool-style repo directory
