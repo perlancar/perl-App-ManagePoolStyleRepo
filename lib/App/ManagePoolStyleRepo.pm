@@ -9,6 +9,7 @@ use 5.010001;
 use strict;
 use warnings;
 use Log::ger;
+use Log::ger::For::Builtins qw(rename system);
 
 use Cwd;
 use File::chdir;
@@ -126,6 +127,7 @@ sub list_items {
         for my $item_path (glob "*") {
             my $row;
             $row = get_item_metadata(item_path=>$item_path, _skip_cd=>1);
+            $row->{dir} = "";
             push @rows, $row;
         }
     }
@@ -208,13 +210,64 @@ $SPEC{update_index} = {
         %args_common,
     },
     features => {
-        dry_run => 1,
+        #dry_run => 1,
     },
 };
 sub update_index {
     require File::Path;
+    require File::Temp;
 
     my %args = @_;
+
+    my $res = list_items(
+        %args,
+        detail=>1,
+    );
+    return $res unless $res->[0] == 200;
+
+    local $CWD = $args{repo_path};
+    my $tmpdir = File::Temp::tempdir("index.tmp.XXXXXXXX", DIR => $args{repo_path});
+    (my $tmpname = $tmpdir) =~ s!.+/!!;
+    $CWD = $tmpname;
+
+  CREATE_TITLE_INDEX:
+    {
+        mkdir "by-title";
+        local $CWD = "by-title";
+        for my $item (@{ $res->[2] }) {
+            my $target = "../../pool" . (length $item->{dir} ? "/$item->{dir}" : "") . "/$item->{filename}";
+            my $link   = $item->{title};
+            symlink $target, $link or warn "Can't symlink $link -> $target: $!";
+        }
+    } # CREATE_TITLE_INDEX
+
+  CREATE_TAG_INDEX:
+    {
+        mkdir "by-tag";
+        local $CWD = "by-tag";
+
+        # collect all tags
+        my %tags;
+        for my $item (@{ $res->[2] }) {
+            next unless $item->{tags};
+            for my $tag (@{ $item->{tags} }) {
+                (my $tagdir = $tag) =~ s!-+!/!g;
+                File::Path::mkpath($tagdir) unless $tags{$tag}++;
+                my $num_level = 1; $num_level++ while $tagdir =~ m!/!g;
+                my $target = "../../".("../" x $num_level) . "pool" . (length $item->{dir} ? "/$item->{dir}" : "") . "/$item->{filename}";
+                my $link = "$tagdir/$item->{title}";
+                symlink $target, $link or warn "Can't symlink $link -> $target: $!";
+            }
+        }
+
+    } # CREATE_TAG_INDEX
+
+    $CWD = "..";
+    File::Path::rmtree("index");
+    rename $tmpname, "index" or die "Can't rename $tmpname -> index: $!";
+    #system "mv", $tmpname, "index" or die "Can't move $tmpname -> index: $!";
+
+    [200];
 }
 
 1;
