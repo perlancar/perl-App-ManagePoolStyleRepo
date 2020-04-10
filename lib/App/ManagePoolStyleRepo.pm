@@ -38,10 +38,13 @@ our %argopt_detail = (
 );
 
 $SPEC{get_item_metadata} = {
-    item_path => {
-        schema => 'filename*',
+    v => 1.1,
+    args => {
+        item_path => {
+            schema => 'filename*',
         req => 1,
-        pos => 0,
+            pos => 0,
+        },
     },
     result_naked => 1,
 };
@@ -70,7 +73,7 @@ sub get_item_metadata {
             $res->{title} = $title;
         }
         my @tag_files = glob ".tag-*";
-        $res->{tags} = [map { s/\A\.tag-//; $_ } @tag_files] if @tag_files;
+        $res->{tags} = [map { my $t = $_; $t =~ s/\A\.tag-//; $t } @tag_files] if @tag_files;
     } else {
     }
     $res;

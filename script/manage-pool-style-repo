@@ -161,10 +161,3 @@ C<index/by-title>. These directory structure can be navigated by any filesystem
 tool of your choice.
 
 This files organization is inspired from how Debian repository works.
-
-
-=head1 SUBCOMMANDS
-
-=head2 update-index
-
-=head2 list-items
